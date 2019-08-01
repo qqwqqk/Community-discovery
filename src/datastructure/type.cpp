@@ -28,14 +28,18 @@ Unipartite::Unipartite(string name){
 string Unipartite::getName(){
     return _name;
 };
-vector<Node> Unipartite::getNodes(){
+map<int, Node> Unipartite::getNodes(){
     return _nodes;
 };
 vector<Edge> Unipartite::getEdges(){
     return _edges;
 };
 void Unipartite::addNode(Node item){
-    _nodes.push_back(item);
+  map<int,Node>::iterator iter = _nodes.find(item.getID());
+  if(iter == _nodes.end()){
+    pair<int, Node> value(item.getID(), item);
+    _nodes.insert(value);
+  }
 };
 void Unipartite::addEdge(Edge item){
     _edges.push_back(item);
@@ -48,20 +52,28 @@ Bipartite::Bipartite(string name){
 string Bipartite::getName(){
     return _name;
 };
-vector<Node> Bipartite::getNodesA(){
+map<int,Node> Bipartite::getNodesA(){
     return _nodes_a;
 };
-vector<Node> Bipartite::getNodesB(){
+map<int,Node> Bipartite::getNodesB(){
     return _nodes_b;
 };
 vector<Edge> Bipartite::getEdges(){
     return _edges;
 };
 void Bipartite::addNodeA(Node item){
-    _nodes_a.push_back(item);
+  map<int,Node>::iterator iter = _nodes_a.find(item.getID());
+  if(iter == _nodes_a.end()){
+    pair<int, Node> value(item.getID(), item);
+    _nodes_a.insert(value);
+  }
 };
 void Bipartite::addNodeB(Node item){
-    _nodes_b.push_back(item);
+  map<int,Node>::iterator iter = _nodes_b.find(item.getID());
+  if(iter == _nodes_b.end()){
+    pair<int, Node> value(item.getID(), item);
+    _nodes_b.insert(value);
+  }
 };
 void Bipartite::addEdge(Edge item){
     _edges.push_back(item);

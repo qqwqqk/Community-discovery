@@ -4,5 +4,18 @@
 #include <iostream>
 using namespace std;
 
-void test(string name);
-void pretreatmentBipartite(string path, string Intercept = "A", int number = -1, bool connected = false, bool rank = false);
+Bipartite getBipartite(
+  string name, 
+  char intercept = 'A', 
+  int number = -1, 
+  bool connected = false, 
+  bool rank = false
+);
+
+Bipartite pretreatmentBipartite(
+  string name, 
+  char intercept = 'A', 
+  int number = -1, 
+  bool connected = false, 
+  bool rank = false
+);
