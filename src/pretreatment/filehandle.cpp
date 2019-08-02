@@ -1,4 +1,4 @@
-#include"method.h"
+#include "filehandle.h"
 #include "../datastructure/type.h"
 #include <fstream>
 #include <cstdlib>
@@ -6,11 +6,11 @@ using namespace std;
 
 Bipartite getBipartite(string name, char intercept, int number, bool connected, bool sequence){
   const string split = "_";
-  const string sIntercept(1,intercept);
-  const string sNumber = number > 0 ? to_string(number) : "0";
-  const string sConnected = connected ? "C" : "UC";
-  const string sSequence = sequence ? "S" : "US";
-  const string netpath = "netdata/" + name + split + sIntercept + sNumber + sConnected + sSequence + ".txt";
+  const string _intercept(1,intercept);
+  const string _number = number > 0 ? to_string(number) : "0";
+  const string _connected = connected ? "C" : "UC";
+  const string _sequence = sequence ? "S" : "US";
+  const string netpath = "netdata/" + name + split + _intercept + _number + _connected + _sequence + ".txt";
 
   ifstream infile;
   string line;
@@ -84,15 +84,14 @@ Bipartite getBipartite(string name, char intercept, int number, bool connected, 
   return Network;
 }
 
-
 Bipartite pretreatmentBipartite(string name, char intercept, int number, bool connected, bool sequence){
   const string split = "_";
-  const string sIntercept(1,intercept);
-  const string sNumber = number > 0 ? to_string(number) : "0";
-  const string sConnected = connected ? "C" : "UC";
-  const string sSequence = sequence ? "S" : "US";
+  const string _intercept(1,intercept);
+  const string _number = number > 0 ? to_string(number) : "0";
+  const string _connected = connected ? "C" : "UC";
+  const string _sequence = sequence ? "S" : "US";
   const string metapath = "metadata/" + name + ".txt";
-  const string netpath = "netdata/" + name + split + sIntercept + sNumber + sConnected + sSequence + ".txt";
+  const string netpath = "netdata/" + name + split + _intercept + _number + _connected + _sequence + ".txt";
 
   ifstream infile;
   string line;
@@ -182,13 +181,8 @@ Bipartite pretreatmentBipartite(string name, char intercept, int number, bool co
           break;
         }
       default:
-        cout << "Invalid input, use the default E" << endl;
-        if(edgeCache.size() <= number){
-          break;
-        } else {
-          edgeCache.erase(edgeCache.begin()+number,edgeCache.end());
-          break;
-        }
+        cout << "Illegal interception input" << endl;
+        exit(0);
     }
     //截取点信息
     nodeCacheA.clear();
@@ -303,14 +297,8 @@ Bipartite pretreatmentBipartite(string name, char intercept, int number, bool co
         }
         break;
       default:
-        cout << "Invalid input, use the default E" << endl;
-        for(int i=0; i<Networks.size(); i++){
-          if(Networks[i].subEdges.size() == maxE){
-            index = i; break;
-          }
-        }
-        break;
-
+        cout << "Illegal interception input" << endl;
+        exit(0);
     }
 
     //将最大全连通子图写入缓存
@@ -372,4 +360,184 @@ Bipartite pretreatmentBipartite(string name, char intercept, int number, bool co
   outfile.close();
 
   return Network;
+}
+
+Unipartite getUnipartite(string name, char intercept, int number, bool connected, bool sequence, char nodetype){
+  const string split = "_";
+  const string _intercept(1,intercept);
+  const string _number = number > 0 ? to_string(number) : "0";
+  const string _connected = connected ? "C" : "UC";
+  const string _sequence = sequence ? "S" : "US";
+  const string _nodetype(1,nodetype);
+  const string unipartitepath = "netdata/" + name + "_Single" + _nodetype + split + _intercept + _number + _connected + _sequence + ".txt";
+
+  ifstream infile;
+  string line;
+  const char dilem = ',';
+  vector<Edge> edgeCache;
+  map<int,int> nodeCache;
+  map<int,int>::iterator iter;
+
+  //按行读取TXT文件，并解析
+  infile.open(unipartitepath, ios::in);
+  if(!infile){ 
+    cout<< "read from bipartite data" <<endl;
+    return pretreatmentUnipartite(name, intercept, number, connected, sequence, nodetype);
+  } else {
+    cout<< "read from unipartite data" <<endl;
+  }
+
+  while(!infile.eof()){
+    getline(infile, line);
+    int linePos = 0;
+    int lineSize = 0;
+    string cache;
+    vector<int> array;
+
+    for(int i = 0 ; i < line.size(); i++){
+      if(line[i] == dilem){
+        lineSize = i - linePos;
+        cache = line.substr(linePos, lineSize);
+        array.push_back(stoi(cache));
+        linePos = i+1;
+      }
+    }
+    cache = line.substr(linePos, line.size() - linePos);
+    if(cache.size()>0){ array.push_back(stoi(cache)); }
+
+    //记录两人种类型节点数量并将解析的内容写入边对象缓存
+    if(array.size() > 2){
+      iter = nodeCache.find(array[1]);
+      if(iter == nodeCache.end()){
+        pair<int,int> value(array[1],0);
+        nodeCache.insert(value);
+      }
+      iter = nodeCache.find(array[2]);
+      if(iter == nodeCache.end()){
+        pair<int,int> value(array[2],0);
+        nodeCache.insert(value);
+      }
+      edgeCache.push_back(Edge(array[1],array[2]));
+    }
+  }
+  infile.close();
+
+  //写入Unipartite
+
+  Unipartite unipartiteNetwork(name);
+  for(int i=0; i<edgeCache.size(); i++){
+    unipartiteNetwork.addEdge(edgeCache[i]);
+  }
+  for(iter = nodeCache.begin(); iter != nodeCache.end(); iter++){
+    unipartiteNetwork.addNode(Node(iter->first));
+  }
+
+  return unipartiteNetwork;
+}
+
+Unipartite pretreatmentUnipartite(string name, char intercept, int number, bool connected, bool sequence, char nodetype){
+  const string split = "_";
+  const string _intercept(1,intercept);
+  const string _number = number > 0 ? to_string(number) : "0";
+  const string _connected = connected ? "C" : "UC";
+  const string _sequence = sequence ? "S" : "US";
+  const string _nodetype(1,nodetype);
+  const string unipartitepath = "netdata/" + name + "_Single" + _nodetype + split + _intercept + _number + _connected + _sequence + ".txt";
+
+  Bipartite bipartiteNetwork = getBipartite(name, intercept, number, connected, sequence);
+  map<int,Node> bipartiteNodesA = bipartiteNetwork.getNodesA();
+  map<int,Node> bipartiteNodesB = bipartiteNetwork.getNodesB();
+  vector<Edge> bipartiteEdges = bipartiteNetwork.getEdges();
+
+  vector<int> nodeCache;
+  map<int, Node> nodeMap;
+  map<string, Edge> edgeMap;
+
+  switch(nodetype){
+    case 'A':
+      //遍历B类型节点
+      for(map<int,Node>::iterator iter = bipartiteNodesB.begin(); iter != bipartiteNodesB.end(); iter++){
+        int nodeID = iter->first;
+        nodeCache.clear();
+        //遍历边节点，将所有与B类型节点相连的A类型节点写入nodeCache缓存;将未存入nodeMap的节点存入nodeMap
+        for(int i=0; i<bipartiteEdges.size(); i++){
+          if(nodeID == bipartiteEdges[i].getNodeB()){
+            nodeCache.push_back(bipartiteEdges[i].getNodeA());
+
+            map<int, Node>::iterator nodeIter = nodeMap.find(nodeID);
+            if(nodeIter == nodeMap.end()){
+              nodeMap.insert(pair<int, Node> (nodeID, Node(nodeID)));
+            }
+          }
+        }
+        //遍历nodeCache,将未保存的edge写入edgeMap
+        for(int i=0; i<nodeCache.size(); i++){
+          for(int j=i+1; j<nodeCache.size(); j++){
+            int node_1, node_2;
+            if(nodeCache[i] < nodeCache[j]){ node_1 = nodeCache[i]; node_2 = nodeCache[j]; } 
+            else { node_1 = nodeCache[j]; node_2 = nodeCache[i]; }
+            string edgeKey =  to_string(node_1) + '-' + to_string(node_2);
+
+            map<string, Edge>::iterator edgeIter = edgeMap.find(edgeKey);
+            if(edgeIter == edgeMap.end()){ 
+              edgeMap.insert(pair<string, Edge> (edgeKey, Edge(node_1, node_2)));
+            }
+          }
+        }
+      }
+      break;
+    case 'B':
+      //遍历A类型节点
+      for(map<int,Node>::iterator iter = bipartiteNodesA.begin(); iter != bipartiteNodesA.end(); iter++){
+        int nodeID = iter->first;
+        nodeCache.clear();
+        //遍历边节点，将所有与A类型节点相连的B类型节点写入nodeCache缓存;将未存入nodeMap的节点存入nodeMap
+        for(int i=0; i<bipartiteEdges.size(); i++){
+          if(nodeID == bipartiteEdges[i].getNodeA()){
+            nodeCache.push_back(bipartiteEdges[i].getNodeB());
+
+            map<int, Node>::iterator nodeIter = nodeMap.find(nodeID);
+            if(nodeIter == nodeMap.end()){
+              nodeMap.insert(pair<int, Node> (nodeID, Node(nodeID)));
+            }
+          }
+        }
+        //遍历nodeCache,将未保存的edge写入edgeMap
+        for(int i=0; i<nodeCache.size(); i++){
+          for(int j=i+1; j<nodeCache.size(); j++){
+            int node_1, node_2;
+            if(nodeCache[i] < nodeCache[j]){ node_1 = nodeCache[i]; node_2 = nodeCache[j]; } 
+            else { node_1 = nodeCache[j]; node_2 = nodeCache[i]; }
+            string edgeKey =  to_string(node_1) + '-' + to_string(node_2);
+
+            map<string, Edge>::iterator edgeIter = edgeMap.find(edgeKey);
+            if(edgeIter == edgeMap.end()){ 
+              edgeMap.insert(pair<string, Edge> (edgeKey, Edge(node_1, node_2)));
+            }
+          }
+        }
+      }
+      break;
+    default:
+      cout<< "Invalid node type input " <<endl;
+      exit(0);
+  }
+
+  //写入Bipartite，并输出到TXT文件
+  ofstream outfile( unipartitepath , ios::out);
+  if(!outfile){ cout<<"file open error!"<<endl; exit(1); } 
+
+  int index = 0;
+  Unipartite unipartiteNetwork( name + "_Single" + _nodetype );
+  for(map<int, Node>::iterator nodeIter = nodeMap.begin(); nodeIter != nodeMap.end(); nodeIter++){
+    unipartiteNetwork.addNode(nodeIter->second);
+  }
+  for(map<string, Edge>::iterator edgeIter = edgeMap.begin(); edgeIter != edgeMap.end(); edgeIter++){
+    unipartiteNetwork.addEdge(edgeIter->second);
+    outfile << ++index << ',' << edgeIter->second.getNodeA() << ',' << edgeIter->second.getNodeB() << '\n';
+  }
+
+  outfile.close();
+
+  return unipartiteNetwork;
 }
