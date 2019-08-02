@@ -36,13 +36,15 @@ Bipartite getBipartite(string name, char intercept, int number, bool connected, 
     vector<int> array;
 
     for(int i = 0 ; i < line.size(); i++){
-      if(line[i] == dilem || line[i] == '\r' || line[i] == '\n'){
+      if(line[i] == dilem){
         lineSize = i - linePos;
         cache = line.substr(linePos, lineSize);
         array.push_back(stoi(cache));
         linePos = i+1;
       }
     }
+    cache = line.substr(linePos, line.size() - linePos);
+    if(cache.size()>0){ array.push_back(stoi(cache)); }
 
     //记录两人种类型节点数量并将解析的内容写入边对象缓存
     if(array.size() > 2){
@@ -73,10 +75,10 @@ Bipartite getBipartite(string name, char intercept, int number, bool connected, 
     Network.addEdge(edgeCache[i]);
   }
   for(iter = nodeCacheA.begin(); iter != nodeCacheA.end(); iter++){
-    Network.addNodeA(Node(iter->second));
+    Network.addNodeA(Node(iter->first));
   }
   for(iter = nodeCacheB.begin(); iter != nodeCacheB.end(); iter++){
-    Network.addNodeB(Node(iter->second));
+    Network.addNodeB(Node(iter->first));
   }
 
   return Network;
@@ -110,13 +112,15 @@ Bipartite pretreatmentBipartite(string name, char intercept, int number, bool co
     vector<int> array;
 
     for(int i = 0 ; i < line.size(); i++){
-      if(line[i] == dilem || line[i] == '\r' || line[i] == '\n'){
+      if(line[i] == dilem){
         lineSize = i - linePos;
         cache = line.substr(linePos, lineSize);
         array.push_back(stoi(cache));
         linePos = i+1;
       }
     }
+    cache = line.substr(linePos, line.size() - linePos);
+    if(cache.size()>0){ array.push_back(stoi(cache)); }
 
     //记录两人种类型节点数量并将解析的内容写入边对象缓存
     if(array.size() > 2){
@@ -223,8 +227,8 @@ Bipartite pretreatmentBipartite(string name, char intercept, int number, bool co
       SubBipartiteCache subCache;
 
       iter = nodeCacheA.begin();
-      nodeCacheA.erase(iter);
       subCache.subNodeA.insert(pair<int,int> (iter->first, 0));
+      nodeCacheA.erase(iter);
       int length = 0;
       while(1){
         length = subCache.subNodeB.size();
@@ -356,7 +360,7 @@ Bipartite pretreatmentBipartite(string name, char intercept, int number, bool co
   Bipartite Network(name);
   for(int i=0; i<edgeCache.size(); i++){
     Network.addEdge(edgeCache[i]);
-    outfile << i << ',' << edgeCache[i].getNodeA() << ',' << edgeCache[i].getNodeB() << '\r' << '\n';
+    outfile << i << ',' << edgeCache[i].getNodeA() << ',' << edgeCache[i].getNodeB() << '\n';
   }
   for(iter = nodeCacheA.begin(); iter != nodeCacheA.end(); iter++){
     Network.addNodeA(Node(iter->second));
