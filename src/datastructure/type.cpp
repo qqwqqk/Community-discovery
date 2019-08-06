@@ -4,21 +4,49 @@ using std::string;
 
 //节点类型基本的定义
 Node::Node(int id){
-    _id = id;
+  _id = id;
+  _degree = 0;
+  _subjection.push_back(id);
 }
 int Node::getID(){
-    return _id;
+  return _id;
+}
+int Node::getDegree(){
+  return _degree;
+}
+int Node::getCommunityTag(int index){
+  if(index >= 0 && index < _subjection.size()){
+    return _subjection[index];
+  } else {
+    return _subjection.back();
+  }
+}
+void Node::addDegree(){
+  _degree = _degree + 1;
+}
+void Node::setDegree(int degree){
+  _degree = degree;
+}
+void Node::addListTag(int tag){
+  _subjection.push_back(tag);
 }
 
 //边类型基本的定义
 Edge::Edge(int a, int b){
-    _node_a = a; _node_b = b;
+  _node_a = a; _node_b = b;
+  _weight = 1;
 }
 int Edge::getNodeA(){
-    return _node_a;
+  return _node_a;
 }
 int Edge::getNodeB(){
-    return _node_b;
+  return _node_b;
+}
+double Edge::getWeight(){
+  return _weight;
+}
+void Edge::setWeight(double weight){
+  _weight = weight;
 }
 
 //传统网络基本结构的定义

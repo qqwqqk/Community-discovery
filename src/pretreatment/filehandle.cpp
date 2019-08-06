@@ -1,5 +1,4 @@
 #include "filehandle.h"
-#include "../datastructure/type.h"
 #include <fstream>
 #include <cstdlib>
 using namespace std;

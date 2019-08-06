@@ -12,6 +12,7 @@
         "${workspaceFolder}/main.cpp",
         "${workspaceFolder}/src/datastructure/*.cpp",
         "${workspaceFolder}/src/pretreatment/*.cpp",
+        "${workspaceFolder}/src/algorithm/*.cpp",
         "-o",
         "${workspaceFolder}/compile/main.exe"
       ],

@@ -8,21 +8,31 @@ using namespace std;
 class Node{
   protected:
     int _id;
+    int _degree;
+    vector<int> _subjection;
   public:
     Node(int id = -1);
     ~Node(){};
     int getID();
+    int getDegree();
+    int getCommunityTag(int index = -1);
+    void addDegree();
+    void setDegree(int degree = -1);
+    void addListTag(int tag = -1);
 };
 
 class Edge{
   protected:
     int _node_a;
     int _node_b;
+    double _weight;
   public:
     Edge(int a = -1, int b = -2);
     ~Edge(){};
     int getNodeA();
     int getNodeB();
+    double getWeight();
+    void setWeight(double weight);
 };
 
 class Unipartite{
