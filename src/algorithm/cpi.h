@@ -9,6 +9,6 @@ double calculationCommunityPolymerization(map<int,Node> nodes, vector<Edge> edge
 
 double calculationModularity(map<int,Node> nodes, vector<Edge> edges);
 
-map<int, int> calculationMergeList(vector<Edge> edges);
+map<int, int> calculationMergeList(vector<Link> links);
 
-int calculationMergeNumber(map<int, int> source);
+int calculationCommunityNumber(map<int,Node> nodes);

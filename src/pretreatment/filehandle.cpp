@@ -1,6 +1,7 @@
 #include "filehandle.h"
 #include <fstream>
 #include <cstdlib>
+#include <iomanip>
 using namespace std;
 
 Bipartite getBipartite(string name, char intercept, int number, bool connected, bool sequence){
@@ -539,4 +540,36 @@ Unipartite pretreatmentUnipartite(string name, char intercept, int number, bool 
   outfile.close();
 
   return unipartiteNetwork;
+}
+
+void printProgress(int iterationNumber, int communityNumber, double modularity){
+  cout << "IterationNumber:" << setw(4) << iterationNumber << '\t';
+  cout << "CommunityNumber:" << setw(4) << communityNumber << '\t';
+  cout << "Modularity:" << setw(9) << setiosflags(ios::fixed) << setprecision(5) << modularity << '\t' << endl;
+}
+
+void printCommunity(vector<double> modularityCache, map<int,Node> nodeCache,string name, char intercept, int number, bool connected, bool sequence, char nodetype){
+  const string split = "_";
+  const string _intercept(1, intercept);
+  const string _number = number > 0 ? to_string(number) : "0";
+  const string _connected = connected ? "C" : "UC";
+  const string _sequence = sequence ? "S" : "US";
+  const string _nodetype(1, nodetype);
+  const string resultpath = "resultdata/" + name + "_Result" + _nodetype + split + _intercept + _number + _connected + _sequence + ".txt";
+
+  //写入Bipartite，并输出到TXT文件
+  ofstream outfile( resultpath , ios::out);
+  if(!outfile){ cout<<"file open error!"<<endl; exit(1); } 
+
+  vector<double>::iterator modularityMax = std::max_element(begin(modularityCache), end(modularityCache));
+  int modularityIndex = distance(begin(modularityCache), modularityMax);
+
+  cout << "modularityMax:\t" << *modularityMax << endl;
+
+  for(map<int, Node>::iterator iter_node = nodeCache.begin(); iter_node != nodeCache.end(); iter_node++){
+    int communityTag = iter_node->second.getCommunityTag(modularityIndex);
+    outfile << iter_node->first << '\t' << communityTag << '\n';
+  }
+
+  outfile.close();
 }

@@ -35,7 +35,6 @@ double calculationCommunityPolymerization(map<int,Node> nodes, vector<Edge> edge
   for(int i=0; i<edges.size(); i++){
     const int node_id = nodetype == 'A' ? edges[i].getNodeA() : edges[i].getNodeB();
     const int node_tag = nodetype == 'A' ? edges[i].getNodeB() : edges[i].getNodeA();
-
     if(community_i.find(node_id) != community_i.end()){ 
       sub_i.insert(node_tag);
     }
@@ -93,18 +92,18 @@ double calculationModularity(map<int,Node> nodes, vector<Edge> edges){
   return modularity;
 }
 
-map<int, int> calculationMergeList(vector<Edge> edges){
+map<int, int> calculationMergeList(vector<Link> links){
   map<int,int> mergeList;
   double gravityMax = 0;
 
-  for(int i=0; i<edges.size(); i++){
-    gravityMax = gravityMax > edges[i].getWeight() ? gravityMax : edges[i].getWeight();
+  for(int i=0; i<links.size(); i++){
+    gravityMax = gravityMax > links[i].cpi ? gravityMax : links[i].cpi;
   }
 
-  for(int i=0; i<edges.size(); i++){
-    if(edges[i].getWeight() == gravityMax){
-      int node_a = edges[i].getNodeA();
-      int node_b = edges[i].getNodeB();
+  for(int i=0; i<links.size(); i++){
+    if(links[i].cpi == gravityMax){
+      int node_a = links[i].community_a;
+      int node_b = links[i].community_b;
 
       map<int, int>::iterator iter_a = mergeList.find(node_a);
       map<int, int>::iterator iter_b = mergeList.find(node_b);
@@ -119,22 +118,17 @@ map<int, int> calculationMergeList(vector<Edge> edges){
         mergeList.insert(pair<int, int> (node_a, node_a));
         mergeList.insert(pair<int, int> (node_b, node_a));
       }
-
     }
   }
-
   return mergeList;
 }
 
-int calculationMergeNumber(map<int, int> source){
-  map<int,int> resoult;
+int calculationCommunityNumber(map<int,Node> nodes){
+  set<int> communityCache;
 
-  for(map<int,int>::iterator iter = source.begin(); iter != source.end(); iter++){
-    map<int,int>::iterator cache = resoult.find(iter->second);
-    if(cache == resoult.end()){
-      resoult.insert(pair<int,int> (iter->second, 0));
-    }
+  for(map<int, Node>::iterator iter = nodes.begin(); iter != nodes.end(); iter++){
+    communityCache.insert(iter->second.getCommunityTag());
   }
 
-  return source.size() - resoult.size();
+  return communityCache.size();
 }
